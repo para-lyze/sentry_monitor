@@ -40,7 +40,7 @@ def send_email(title, content):
     try:
         message = MIMEText(content, 'plain', 'utf-8')
         message['From'] = formataddr(["SZTU选课哨兵", MAIL_USER])
-        message['To'] = formataddr(["君泽同学", MAIL_RECEIVER])
+        message['To'] = formataddr(["同学", MAIL_RECEIVER])
         message['Subject'] = Header(title, 'utf-8')
         smtpObj = smtplib.SMTP_SSL(MAIL_HOST, 465)
         smtpObj.login(MAIL_USER, MAIL_PASS)
@@ -153,3 +153,4 @@ def run_monitor():
 
 if __name__ == "__main__":
     run_monitor()
+
