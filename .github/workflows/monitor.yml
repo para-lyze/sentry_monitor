@@ -1,0 +1,39 @@
+name: SZTU Course Watcher
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # 每15分钟运行一次 (GitHub最小建议间隔)
+  workflow_dispatch:      # 支持手动点击触发
+
+jobs:
+  run-watcher:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # 必须开启写权限以更新状态文件
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Run Sentry Monitor
+        env:
+          FULL_COOKIE: ${{ secrets.FULL_COOKIE }}
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASS: ${{ secrets.MAIL_PASS }}
+          RECEIVER: ${{ secrets.RECEIVER }}
+        run: python sentry_monitor.py
+
+      - name: Sync Status to Repo
+        run: |
+          git config --global user.name "SZTU-Watcher-Bot"
+          git config --global user.email "bot@github.com"
+          git add course_status.json
+          git commit -m "Update course status [skip ci]" || exit 0
+          git push
